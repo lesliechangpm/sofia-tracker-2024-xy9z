@@ -78,7 +78,7 @@ function AppDemo() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
                 <img 
-                  src="/sofia.jpg" 
+                  src={`${process.env.PUBLIC_URL}/sofia.jpg`}
                   alt="Sofia" 
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-cal-poly-gold shadow-lg"
                 />
