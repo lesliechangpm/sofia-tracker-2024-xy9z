@@ -2,7 +2,7 @@
   "name": "expense-tracker",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://yourusername.github.io/sofia-tracker-2024-xy9z",
+  "homepage": "https://lesliechangpm.github.io/sofia-tracker-2024-xy9z",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
