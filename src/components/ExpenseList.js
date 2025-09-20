@@ -74,22 +74,22 @@ const ExpenseList = ({ expenses, filter }) => {
           {filteredExpenses.map((expense, index) => (
             <div
               key={expense.id}
-              className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 animate-slide-up"
+              className="flex items-start p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 animate-slide-up"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="flex-shrink-0 mr-4">
+              <div className="flex-shrink-0 mr-3 sm:mr-4">
                 {getPayerAvatar(expense.payer)}
               </div>
               
-              <div className="flex-grow">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{expense.description}</h3>
+              <div className="flex-grow min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                  <div className="flex-grow min-w-0">
+                    <h3 className="font-semibold text-gray-800 break-words">{expense.description}</h3>
                     <p className="text-sm text-gray-500">
                       {expenseService.formatDate(expense.date)} • Paid by {expense.payer}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     <span className="text-lg font-bold text-cal-poly-forest">
                       {expenseService.formatCurrency(expense.amount)}
                     </span>
