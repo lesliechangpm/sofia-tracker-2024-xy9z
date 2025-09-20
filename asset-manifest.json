@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/sofia-tracker-2024-xy9z/static/css/main.68be65e8.css",
-    "main.js": "/sofia-tracker-2024-xy9z/static/js/main.0a05a3c9.js",
+    "main.css": "/sofia-tracker-2024-xy9z/static/css/main.6175f8c8.css",
+    "main.js": "/sofia-tracker-2024-xy9z/static/js/main.71527604.js",
     "static/js/453.d36bb9de.chunk.js": "/sofia-tracker-2024-xy9z/static/js/453.d36bb9de.chunk.js",
     "index.html": "/sofia-tracker-2024-xy9z/index.html",
-    "main.68be65e8.css.map": "/sofia-tracker-2024-xy9z/static/css/main.68be65e8.css.map",
-    "main.0a05a3c9.js.map": "/sofia-tracker-2024-xy9z/static/js/main.0a05a3c9.js.map",
+    "main.6175f8c8.css.map": "/sofia-tracker-2024-xy9z/static/css/main.6175f8c8.css.map",
+    "main.71527604.js.map": "/sofia-tracker-2024-xy9z/static/js/main.71527604.js.map",
     "453.d36bb9de.chunk.js.map": "/sofia-tracker-2024-xy9z/static/js/453.d36bb9de.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.68be65e8.css",
-    "static/js/main.0a05a3c9.js"
+    "static/css/main.6175f8c8.css",
+    "static/js/main.71527604.js"
   ]
 }
