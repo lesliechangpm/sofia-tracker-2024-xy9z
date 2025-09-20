@@ -30,7 +30,37 @@ const ExpenseForm = ({ onExpenseAdded }) => {
     setIsSubmitting(true);
     setMessage({ type: '', text: '' });
 
-    const result = await expenseService.addExpense(formData);
+    // Convert amount to number for consistency
+    const expenseData = {
+      ...formData,
+      amount: parseFloat(formData.amount)
+    };
+
+    // Check if we're in demo mode by trying the callback first
+    if (onExpenseAdded && typeof onExpenseAdded === 'function') {
+      try {
+        // Call the callback function - in demo mode this will update local state
+        onExpenseAdded(expenseData);
+        
+        // Demo mode success
+        setMessage({ type: 'success', text: 'Expense added successfully!' });
+        setFormData({
+          payer: formData.payer,
+          amount: '',
+          description: '',
+          date: new Date().toISOString().split('T')[0]
+        });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        setIsSubmitting(false);
+        return;
+      } catch (error) {
+        // If callback fails, fall through to Firebase
+        console.log('Demo mode callback failed, falling back to Firebase');
+      }
+    }
+
+    // Production mode or fallback - use Firebase
+    const result = await expenseService.addExpense(expenseData);
     
     if (result.success) {
       setMessage({ type: 'success', text: 'Expense added successfully!' });
@@ -40,8 +70,6 @@ const ExpenseForm = ({ onExpenseAdded }) => {
         description: '',
         date: new Date().toISOString().split('T')[0]
       });
-      if (onExpenseAdded) onExpenseAdded();
-      
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } else {
       setMessage({ type: 'error', text: 'Failed to add expense. Please try again.' });

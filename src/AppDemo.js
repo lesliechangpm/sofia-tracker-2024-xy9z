@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { expenseService } from './services/expenseService';
+import React, { useState } from 'react';
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import ExpenseSummary from './components/ExpenseSummary';
@@ -52,8 +51,6 @@ const mockExpenses = [
 function AppDemo() {
   const [expenses, setExpenses] = useState(mockExpenses);
   const [filter, setFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   // Simulate adding an expense
   const handleAddExpense = (newExpense) => {
@@ -62,7 +59,7 @@ function AppDemo() {
       id: Date.now().toString(),
       timestamp: new Date()
     };
-    setExpenses([expense, ...expenses]);
+    setExpenses(prev => [expense, ...prev]);
   };
 
   // Simulate deleting an expense
@@ -94,31 +91,28 @@ function AppDemo() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-600">Demo Mode</span>
-              </div>
+              <a 
+                href="https://commerce.cashnet.com/cashneti/static/epayment/cpslopay/login"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-cal-poly-gold hover:bg-cal-poly-gold/90 text-cal-poly-forest font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span className="hidden sm:inline">Pay Cal Poly Bill</span>
+                <span className="sm:hidden">Pay Bill</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
           </div>
         </header>
 
         {/* Main content with improved spacing */}
         <main className="max-w-7xl mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cal-poly-forest mx-auto"></div>
-                <p className="mt-4 text-white/80">Loading expenses...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {/* Left column - Form and Summary */}
               <div className="lg:col-span-1">
                 <div className="space-y-4 sm:space-y-6">
@@ -136,12 +130,12 @@ function AppDemo() {
                   />
                   <ExpenseList 
                     expenses={expenses} 
-                    filter={filter} 
+                    filter={filter}
+                    onDeleteExpense={handleDeleteExpense}
                   />
                 </div>
               </div>
             </div>
-          )}
         </main>
 
         {/* Footer with improved spacing */}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { expenseService } from '../services/expenseService';
 import DeleteConfirmModal from './DeleteConfirmModal';
 
-const ExpenseList = ({ expenses, filter }) => {
+const ExpenseList = ({ expenses, filter, onDeleteExpense }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -18,13 +18,24 @@ const ExpenseList = ({ expenses, filter }) => {
     if (!expenseToDelete) return;
     
     setIsDeleting(true);
-    const result = await expenseService.deleteExpense(expenseToDelete.id);
     
-    if (result.success) {
+    // Use passed delete function for demo mode, or Firebase for production
+    if (onDeleteExpense) {
+      // Demo mode - delete from local state
+      onDeleteExpense(expenseToDelete.id);
       setDeleteModalOpen(false);
       setExpenseToDelete(null);
+      setIsDeleting(false);
+    } else {
+      // Production mode - delete from Firebase
+      const result = await expenseService.deleteExpense(expenseToDelete.id);
+      
+      if (result.success) {
+        setDeleteModalOpen(false);
+        setExpenseToDelete(null);
+      }
+      setIsDeleting(false);
     }
-    setIsDeleting(false);
   };
 
   const handleCancelDelete = () => {
