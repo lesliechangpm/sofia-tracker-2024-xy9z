@@ -36,13 +36,12 @@ const ExpenseForm = ({ onExpenseAdded }) => {
       amount: parseFloat(formData.amount)
     };
 
-    // Check if we're in demo mode by trying the callback first
+    // Check if we're in demo mode (callback provided) or Firebase mode (no callback)
     if (onExpenseAdded && typeof onExpenseAdded === 'function') {
       try {
-        // Call the callback function - in demo mode this will update local state
+        // Demo mode - call the callback function
         onExpenseAdded(expenseData);
         
-        // Demo mode success
         setMessage({ type: 'success', text: 'Expense added successfully!' });
         setFormData({
           payer: formData.payer,
@@ -54,12 +53,11 @@ const ExpenseForm = ({ onExpenseAdded }) => {
         setIsSubmitting(false);
         return;
       } catch (error) {
-        // If callback fails, fall through to Firebase
         console.log('Demo mode callback failed, falling back to Firebase');
       }
     }
 
-    // Production mode or fallback - use Firebase
+    // Firebase mode - use Firebase service
     const result = await expenseService.addExpense(expenseData);
     
     if (result.success) {

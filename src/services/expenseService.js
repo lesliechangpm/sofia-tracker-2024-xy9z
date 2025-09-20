@@ -16,13 +16,15 @@ const COLLECTION_NAME = 'expenses';
 export const expenseService = {
   async addExpense(expense) {
     try {
-      const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+      const expenseData = {
         ...expense,
         amount: parseFloat(expense.amount),
         date: expense.date || new Date().toISOString().split('T')[0],
         timestamp: serverTimestamp(),
         createdAt: Timestamp.now()
-      });
+      };
+      
+      const docRef = await addDoc(collection(db, COLLECTION_NAME), expenseData);
       return { success: true, id: docRef.id };
     } catch (error) {
       console.error('Error adding expense:', error);
