@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { expenseService } from '../services/expenseService';
+import Modal from './Modal';
 
-const ExpenseForm = ({ onExpenseAdded }) => {
+const ExpenseFormModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     payer: 'Leslie',
     amount: '',
@@ -17,6 +18,16 @@ const ExpenseForm = ({ onExpenseAdded }) => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      payer: formData.payer, // Keep the payer selection
+      amount: '',
+      description: '',
+      date: new Date().toISOString().split('T')[0]
+    });
+    setMessage({ type: '', text: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -36,39 +47,18 @@ const ExpenseForm = ({ onExpenseAdded }) => {
       amount: parseFloat(formData.amount)
     };
 
-    // Check if we're in demo mode (callback provided) or Firebase mode (no callback)
-    if (onExpenseAdded && typeof onExpenseAdded === 'function') {
-      try {
-        // Demo mode - call the callback function
-        onExpenseAdded(expenseData);
-        
-        setMessage({ type: 'success', text: 'Expense added successfully!' });
-        setFormData({
-          payer: formData.payer,
-          amount: '',
-          description: '',
-          date: new Date().toISOString().split('T')[0]
-        });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-        setIsSubmitting(false);
-        return;
-      } catch (error) {
-        console.log('Demo mode callback failed, falling back to Firebase');
-      }
-    }
-
-    // Firebase mode - use Firebase service
+    // Use Firebase service to add expense
     const result = await expenseService.addExpense(expenseData);
     
     if (result.success) {
       setMessage({ type: 'success', text: 'Expense added successfully!' });
-      setFormData({
-        payer: formData.payer,
-        amount: '',
-        description: '',
-        date: new Date().toISOString().split('T')[0]
-      });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      resetForm();
+      
+      // Close modal after brief success message
+      setTimeout(() => {
+        onClose();
+        setMessage({ type: '', text: '' });
+      }, 1500);
     } else {
       setMessage({ type: 'error', text: 'Failed to add expense. Please try again.' });
     }
@@ -76,15 +66,15 @@ const ExpenseForm = ({ onExpenseAdded }) => {
     setIsSubmitting(false);
   };
 
+  const handleCancel = () => {
+    resetForm();
+    onClose();
+  };
+
   return (
-    <div className="card animate-fade-in bg-gradient-to-br from-green-50/30 to-white border-l-4 border-cal-poly-market shadow-md">
-      <h2 className="text-2xl font-bold text-cal-poly-forest mb-6 flex items-center gap-2">
-        <span className="text-cal-poly-market">+</span>
-        Add New Expense
-      </h2>
-      
+    <Modal isOpen={isOpen} onClose={handleCancel} title="Add New Expense">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="payer" className="block text-sm font-medium text-gray-700 mb-1">
               Who Paid?
@@ -172,16 +162,26 @@ const ExpenseForm = ({ onExpenseAdded }) => {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`w-full btn-primary ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {isSubmitting ? 'Adding...' : 'Add Expense'}
-        </button>
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`flex-1 btn-primary ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isSubmitting ? 'Adding...' : 'Add Expense'}
+          </button>
+        </div>
       </form>
-    </div>
+    </Modal>
   );
 };
 
-export default ExpenseForm;
+export default ExpenseFormModal;
