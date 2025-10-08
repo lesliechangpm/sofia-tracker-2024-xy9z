@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getNextPaymentsDue, getDaysUntilNextPayment, formatCurrency } from '../data/paymentSchedule';
+import { expenseService } from '../services/expenseService';
 
-const NextPaymentDue = () => {
+const NextPaymentDue = ({ onExpenseAdded }) => {
   console.log('NextPaymentDue component called!');
   
   const nextPayments = getNextPaymentsDue();
   const daysRemaining = getDaysUntilNextPayment();
+  const [markedAsPaid, setMarkedAsPaid] = useState([]);
+  const [isMarking, setIsMarking] = useState(false);
   
   console.log('NextPaymentDue data:', { 
     nextPayments: nextPayments,
@@ -33,10 +36,43 @@ const NextPaymentDue = () => {
     });
   };
 
+  const handleMarkAsPaid = async (payment, index) => {
+    setIsMarking(true);
+    
+    // Format the date properly for the expense
+    const paymentDate = payment.dateObj;
+    const formattedDate = `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}-${String(paymentDate.getDate()).padStart(2, '0')}`;
+    
+    const expenseData = {
+      payer: 'Leslie', // Default to Leslie, user can change if needed
+      amount: payment.amount,
+      description: `Cal Poly ${payment.description} - ${formatDate(paymentDate)}`,
+      date: formattedDate
+    };
+
+    try {
+      // If callback provided (demo mode), use it
+      if (onExpenseAdded && typeof onExpenseAdded === 'function') {
+        onExpenseAdded(expenseData);
+      } else {
+        // Otherwise use Firebase
+        await expenseService.addExpense(expenseData);
+      }
+      
+      setMarkedAsPaid([...markedAsPaid, index]);
+    } catch (error) {
+      console.error('Failed to mark as paid:', error);
+      alert('Failed to mark payment as paid. Please try again.');
+    } finally {
+      setIsMarking(false);
+    }
+  };
+
+
   return (
-    <div className="bg-gray-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 text-gray-600 text-sm">
             <div className="flex items-center gap-1">
               <span>📅</span>
@@ -44,10 +80,23 @@ const NextPaymentDue = () => {
             </div>
             
             {nextPayments.map((payment, index) => (
-              <div key={index} className="flex items-center gap-1">
+              <div key={index} className="flex items-center gap-2">
                 <span>{payment.description === 'Dining' ? '🍽️' : '🏠'}</span>
                 <span className="text-gray-700">{payment.description}</span>
                 <span className="font-semibold text-gray-900">{formatCurrency(payment.amount)}</span>
+                {!markedAsPaid.includes(index) && (
+                  <button
+                    onClick={() => handleMarkAsPaid(payment, index)}
+                    disabled={isMarking}
+                    className="ml-1 px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded transition-colors duration-200 disabled:opacity-50"
+                    title={`Mark ${payment.description} as paid`}
+                  >
+                    ✓ Paid
+                  </button>
+                )}
+                {markedAsPaid.includes(index) && (
+                  <span className="ml-1 text-green-600 text-xs font-medium">✓ Added</span>
+                )}
               </div>
             ))}
 

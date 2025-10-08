@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { expenseService } from '../services/expenseService';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import ExportButton from './ExportButton';
 
-const ExpenseList = ({ expenses, filter, onDeleteExpense }) => {
+const ExpenseList = ({ expenses, filter, dateRange, onDeleteExpense }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const filteredExpenses = expenseService.filterExpenses(expenses, filter);
+  // Apply both payer filter and date range filter
+  const payerFiltered = expenseService.filterExpenses(expenses, filter);
+  const filteredExpenses = expenseService.filterByDateRange(payerFiltered, dateRange);
 
   const handleDeleteClick = (expense) => {
     setExpenseToDelete(expense);
@@ -76,9 +79,12 @@ const ExpenseList = ({ expenses, filter, onDeleteExpense }) => {
           <h2 className="text-2xl font-bold text-cal-poly-forest">
             {filter === 'all' ? 'All Expenses' : `${filter}'s Expenses`}
           </h2>
-          <span className="text-sm text-gray-500">
-            {filteredExpenses.length} {filteredExpenses.length === 1 ? 'expense' : 'expenses'}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-500">
+              {filteredExpenses.length} {filteredExpenses.length === 1 ? 'expense' : 'expenses'}
+            </span>
+            <ExportButton expenses={expenses} filter={filter} />
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -99,6 +105,11 @@ const ExpenseList = ({ expenses, filter, onDeleteExpense }) => {
                     <p className="text-sm text-gray-500">
                       {expenseService.formatDate(expense.date)} • Paid by {expense.payer}
                     </p>
+                    {expense.note && (
+                      <p className="text-sm text-gray-600 mt-1 italic">
+                        📝 {expense.note}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     <span className="text-lg font-bold text-cal-poly-forest">

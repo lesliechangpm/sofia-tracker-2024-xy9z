@@ -6,7 +6,8 @@ const ExpenseForm = ({ onExpenseAdded }) => {
     payer: 'Leslie',
     amount: '',
     description: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    note: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -47,7 +48,8 @@ const ExpenseForm = ({ onExpenseAdded }) => {
           payer: formData.payer,
           amount: '',
           description: '',
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0],
+          note: ''
         });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
         setIsSubmitting(false);
@@ -66,7 +68,8 @@ const ExpenseForm = ({ onExpenseAdded }) => {
         payer: formData.payer,
         amount: '',
         description: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        note: ''
       });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } else {
@@ -161,6 +164,23 @@ const ExpenseForm = ({ onExpenseAdded }) => {
             required
           />
         </div>
+
+        <div>
+          <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
+            Note (Optional)
+          </label>
+          <textarea
+            id="note"
+            name="note"
+            value={formData.note}
+            onChange={handleChange}
+            placeholder="Add any additional notes here..."
+            className="input-field resize-none"
+            rows="2"
+            disabled={isSubmitting}
+          />
+        </div>
+
 
         {message.text && (
           <div className={`p-3 rounded-lg animate-slide-up ${

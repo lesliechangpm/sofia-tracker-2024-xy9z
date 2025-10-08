@@ -8,18 +8,18 @@ const FilterButtons = ({ currentFilter, onFilterChange }) => {
   ];
 
   return (
-    <div className="card mb-6">
+    <div className="bg-white rounded-xl shadow-soft border border-gray-100 p-4 sm:p-5 hover:shadow-md transition-all duration-300">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h3 className="text-lg font-semibold text-gray-700">Filter Expenses</h3>
-        <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+        <h3 className="text-sm font-semibold text-gray-800 tracking-tight">👤 Filter by Payer</h3>
+        <div className="flex gap-1.5 bg-gradient-to-br from-gray-50 to-gray-100 p-1.5 rounded-xl shadow-inner">
           {filters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => onFilterChange(filter.value)}
-              className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                 currentFilter === filter.value
-                  ? 'bg-white shadow-md text-cal-poly-forest'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white shadow-soft text-cal-poly-forest transform scale-105'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
               }`}
             >
               <span className="flex items-center gap-2">

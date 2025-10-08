@@ -7,7 +7,8 @@ const ExpenseFormModal = ({ isOpen, onClose }) => {
     payer: 'Leslie',
     amount: '',
     description: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    note: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -25,7 +26,8 @@ const ExpenseFormModal = ({ isOpen, onClose }) => {
       payer: formData.payer, // Keep the payer selection
       amount: '',
       description: '',
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      note: ''
     });
     setMessage({ type: '', text: '' });
   };
@@ -151,6 +153,23 @@ const ExpenseFormModal = ({ isOpen, onClose }) => {
             required
           />
         </div>
+
+        <div>
+          <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
+            Note (Optional)
+          </label>
+          <textarea
+            id="note"
+            name="note"
+            value={formData.note}
+            onChange={handleChange}
+            placeholder="Add any additional notes here..."
+            className="input-field resize-none"
+            rows="2"
+            disabled={isSubmitting}
+          />
+        </div>
+
 
         {message.text && (
           <div className={`p-3 rounded-lg animate-slide-up ${

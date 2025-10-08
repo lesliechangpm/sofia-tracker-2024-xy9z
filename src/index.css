@@ -1,42 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: -0.011em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-semibold;
+  }
+  
+  *:focus-visible {
+    @apply outline-none ring-2 ring-cal-poly-forest ring-offset-2 rounded;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-cal-poly-forest hover:bg-cal-poly-market text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg;
+    @apply bg-gradient-to-r from-cal-poly-forest to-green-700 hover:from-green-700 hover:to-cal-poly-forest;
+    @apply text-white font-semibold py-2.5 px-5 rounded-lg;
+    @apply transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
   }
   
   .btn-secondary {
-    @apply bg-cal-poly-surf hover:bg-cal-poly-gold text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg;
+    @apply bg-gradient-to-r from-cal-poly-surf to-blue-600 hover:from-blue-600 hover:to-cal-poly-surf;
+    @apply text-white font-semibold py-2.5 px-5 rounded-lg;
+    @apply transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
   }
   
   .input-field {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cal-poly-market focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-2.5 border border-gray-200 rounded-lg;
+    @apply focus:ring-2 focus:ring-cal-poly-forest focus:border-transparent;
+    @apply transition-all duration-200 hover:border-gray-300;
+    @apply text-gray-900 placeholder-gray-400;
+    @apply bg-white;
   }
   
   .card {
-    @apply bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300;
+    @apply bg-white rounded-xl shadow-sm border border-gray-100;
+    @apply p-5 sm:p-6 hover:shadow-md transition-all duration-300;
+    @apply hover:border-gray-200;
+  }
+  
+  .card-compact {
+    @apply bg-white rounded-lg shadow-sm border border-gray-100;
+    @apply p-3 sm:p-4 hover:shadow-md transition-all duration-300;
+  }
+  
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+  
+  .section-spacing {
+    @apply py-6 sm:py-8 lg:py-10;
+  }
+  
+  .stat-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 }
 
 @layer utilities {
   .animate-modal-enter {
-    animation: modalEnter 0.3s ease-out;
+    animation: modalEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .animate-slide-up {
-    animation: slideUp 0.2s ease-out;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .shadow-soft {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  }
+  
+  .shadow-medium {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
@@ -54,7 +113,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(0.5rem);
+    transform: translateY(1rem);
   }
   to {
     opacity: 1;
@@ -65,8 +124,53 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(0.5rem);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile tap targets */
+@media (max-width: 640px) {
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  .card {
+    @apply p-4;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Better scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded hover:bg-gray-500;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    @apply text-black bg-white;
   }
 }
