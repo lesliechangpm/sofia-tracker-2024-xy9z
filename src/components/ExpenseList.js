@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { expenseService } from '../services/expenseService';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import ExportButton from './ExportButton';
@@ -7,10 +7,24 @@ const ExpenseList = ({ expenses, filter, dateRange, onDeleteExpense }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const EXPENSES_PER_PAGE = 10;
 
   // Apply both payer filter and date range filter
   const payerFiltered = expenseService.filterExpenses(expenses, filter);
   const filteredExpenses = expenseService.filterByDateRange(payerFiltered, dateRange);
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(filteredExpenses.length / EXPENSES_PER_PAGE);
+  const startIndex = (currentPage - 1) * EXPENSES_PER_PAGE;
+  const endIndex = startIndex + EXPENSES_PER_PAGE;
+  const currentExpenses = filteredExpenses.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, dateRange]);
 
   const handleDeleteClick = (expense) => {
     setExpenseToDelete(expense);
@@ -46,6 +60,12 @@ const ExpenseList = ({ expenses, filter, dateRange, onDeleteExpense }) => {
     setExpenseToDelete(null);
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // Scroll to top of expense list
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+  };
+
   const getPayerAvatar = (payer) => {
     const initial = payer ? payer[0].toUpperCase() : '?';
     const bgColor = payer?.toLowerCase() === 'leslie' ? 'bg-parent-leslie' : 'bg-parent-ian';
@@ -54,6 +74,73 @@ const ExpenseList = ({ expenses, filter, dateRange, onDeleteExpense }) => {
         {initial}
       </div>
     );
+  };
+
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxVisibleButtons = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+    
+    if (endPage - startPage < maxVisibleButtons - 1) {
+      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    // First page button
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          className="px-3 py-2 text-sm rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(
+          <span key="ellipsis1" className="px-2 text-gray-400">...</span>
+        );
+      }
+    }
+
+    // Page number buttons
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+            currentPage === i
+              ? 'bg-cal-poly-forest text-white'
+              : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Last page button
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push(
+          <span key="ellipsis2" className="px-2 text-gray-400">...</span>
+        );
+      }
+      buttons.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className="px-3 py-2 text-sm rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return buttons;
   };
 
   if (filteredExpenses.length === 0) {
@@ -87,8 +174,15 @@ const ExpenseList = ({ expenses, filter, dateRange, onDeleteExpense }) => {
           </div>
         </div>
 
+        {/* Showing X-Y of Z expenses info */}
+        {filteredExpenses.length > EXPENSES_PER_PAGE && (
+          <div className="mb-4 text-sm text-gray-600">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredExpenses.length)} of {filteredExpenses.length} expenses
+          </div>
+        )}
+
         <div className="space-y-3">
-          {filteredExpenses.map((expense, index) => (
+          {currentExpenses.map((expense, index) => (
             <div
               key={expense.id}
               className="flex items-start p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 animate-slide-up"
@@ -130,6 +224,49 @@ const ExpenseList = ({ expenses, filter, dateRange, onDeleteExpense }) => {
             </div>
           ))}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-2 text-sm rounded-lg flex items-center gap-1 transition-colors ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {renderPaginationButtons()}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-2 text-sm rounded-lg flex items-center gap-1 transition-colors ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Next
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {deleteModalOpen && (
