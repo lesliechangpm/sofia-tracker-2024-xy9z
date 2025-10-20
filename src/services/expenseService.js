@@ -10,7 +10,10 @@ import {
   Timestamp,
   getDoc 
 } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
+
+const auth = getAuth();
 
 const COLLECTION_NAME = 'expenses';
 const HISTORY_COLLECTION = 'activity_history';
@@ -18,8 +21,12 @@ const HISTORY_COLLECTION = 'activity_history';
 export const expenseService = {
   async addExpense(expense) {
     try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('Not signed in');
+
       const expenseData = {
         ...expense,
+        ownerId: user.uid, // required for rules
         amount: parseFloat(expense.amount),
         date: expense.date || new Date().toISOString().split('T')[0],
         note: expense.note || '',
@@ -47,6 +54,9 @@ export const expenseService = {
 
   async deleteExpense(id) {
     try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('Not signed in');
+
       // Get expense details before deletion for history
       const expenseDoc = await getDoc(doc(db, COLLECTION_NAME, id));
       const expenseData = expenseDoc.exists() ? expenseDoc.data() : null;
@@ -145,7 +155,6 @@ export const expenseService = {
       
       let expenseDate;
       if (typeof expense.date === 'string') {
-        // Parse YYYY-MM-DD format correctly
         const [year, month, day] = expense.date.split('-').map(Number);
         expenseDate = new Date(year, month - 1, day);
       } else if (expense.date instanceof Date) {
@@ -184,7 +193,6 @@ export const expenseService = {
     }
     
     if (typeof date === 'string') {
-      // Parse YYYY-MM-DD format correctly to avoid timezone issues
       const [year, month, day] = date.split('-').map(Number);
       const localDate = new Date(year, month - 1, day);
       return localDate.toLocaleDateString('en-US', {
@@ -202,10 +210,8 @@ export const expenseService = {
       return null;
     }
 
-    // CSV headers
     const headers = ['Date', 'Payer', 'Amount', 'Description', 'Note'];
     
-    // Convert expenses to CSV rows
     const rows = expenses.map(expense => {
       const date = expense.date || '';
       const formattedDate = typeof date === 'string' && date.includes('-') 
@@ -216,23 +222,20 @@ export const expenseService = {
         formattedDate,
         expense.payer || '',
         expense.amount || 0,
-        `"${(expense.description || '').replace(/"/g, '""')}"`, // Escape quotes in description
-        `"${(expense.note || '').replace(/"/g, '""')}"` // Escape quotes in note
+        `"${(expense.description || '').replace(/"/g, '""')}"`,
+        `"${(expense.note || '').replace(/"/g, '""')}"`
       ];
     });
 
-    // Combine headers and rows
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.join(','))
     ].join('\n');
 
-    // Create blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     
-    // Generate filename with date and filter
     const today = new Date().toISOString().split('T')[0];
     const filterSuffix = filterName === 'all' ? 'all' : filterName.toLowerCase();
     const fileName = `sofia-expenses-${filterSuffix}-${today}.csv`;
@@ -249,18 +252,20 @@ export const expenseService = {
 
   async logActivity(action, details) {
     try {
+      const user = auth.currentUser;
+      if (!user) return; // skip logging if not signed in
+
       const activityData = {
         action,
         details,
+        userId: user.uid, // required for rules
         timestamp: serverTimestamp(),
-        createdAt: Timestamp.now(),
-        user: 'Current User' // You can enhance this with actual user tracking
+        createdAt: Timestamp.now()
       };
       
       await addDoc(collection(db, HISTORY_COLLECTION), activityData);
     } catch (error) {
       console.error('Error logging activity:', error);
-      // Don't fail the main operation if logging fails
     }
   },
 
