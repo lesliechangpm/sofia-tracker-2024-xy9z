@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/sofia-tracker-2024-xy9z/static/css/main.3631dd50.css",
-    "main.js": "/sofia-tracker-2024-xy9z/static/js/main.6c47908c.js",
+    "main.js": "/sofia-tracker-2024-xy9z/static/js/main.bc8b552e.js",
     "static/js/453.d36bb9de.chunk.js": "/sofia-tracker-2024-xy9z/static/js/453.d36bb9de.chunk.js",
     "index.html": "/sofia-tracker-2024-xy9z/index.html",
     "main.3631dd50.css.map": "/sofia-tracker-2024-xy9z/static/css/main.3631dd50.css.map",
-    "main.6c47908c.js.map": "/sofia-tracker-2024-xy9z/static/js/main.6c47908c.js.map",
+    "main.bc8b552e.js.map": "/sofia-tracker-2024-xy9z/static/js/main.bc8b552e.js.map",
     "453.d36bb9de.chunk.js.map": "/sofia-tracker-2024-xy9z/static/js/453.d36bb9de.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3631dd50.css",
-    "static/js/main.6c47908c.js"
+    "static/js/main.bc8b552e.js"
   ]
 }
