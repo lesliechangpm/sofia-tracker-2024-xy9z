@@ -27,7 +27,6 @@ export const expenseService = {
 
       const expenseData = {
         ...expense,
-        ownerId: user.uid, // required by rules
         amount: parseFloat(expense.amount),
         date: expense.date || new Date().toISOString().split('T')[0],
         note: expense.note || '',
@@ -81,12 +80,9 @@ export const expenseService = {
     }
   },
 
-  // Auth-scoped subscription (no index required). We sort on the client.
+  // Shared subscription for all users - everyone sees the same expenses
   subscribeToExpenses(userId, callback) {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('ownerId', '==', userId)
-    );
+    const q = collection(db, COLLECTION_NAME);
 
     const unsubscribe = onSnapshot(
       q,
@@ -247,7 +243,6 @@ export const expenseService = {
       const activityData = {
         action,
         details,
-        userId: user.uid, // required by rules
         timestamp: serverTimestamp(),
         createdAt: Timestamp.now()
       };
@@ -258,28 +253,18 @@ export const expenseService = {
     }
   },
 
-  // Filter activity history by the signed-in user
+  // Shared activity history for all users
   subscribeToActivityHistory(userIdOrCallback, maybeCallback) {
-    let userId;
     let callback;
 
     // Support both subscribeToActivityHistory(uid, cb) and subscribeToActivityHistory(cb)
     if (typeof userIdOrCallback === 'function') {
       callback = userIdOrCallback;
-      userId = auth.currentUser ? auth.currentUser.uid : null;
     } else {
-      userId = userIdOrCallback;
       callback = maybeCallback;
     }
 
-    if (!userId) {
-      const err = new Error('Not signed in');
-      console.error('subscribeToActivityHistory:', err);
-      if (typeof callback === 'function') callback([], err);
-      return () => {};
-    }
-
-    const q = query(collection(db, HISTORY_COLLECTION), where('userId', '==', userId));
+    const q = collection(db, HISTORY_COLLECTION);
 
     const unsubscribe = onSnapshot(
       q,

@@ -15,11 +15,9 @@ import AcademicCalendar from './components/AcademicCalendar';
 import {
   getAuth,
   onAuthStateChanged,
-  GoogleAuthProvider,
+  signInAnonymously,
   setPersistence,
   browserLocalPersistence,
-  signInWithPopup,
-  signInWithRedirect,
 } from 'firebase/auth';
 
 function App() {
@@ -31,7 +29,7 @@ function App() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [dateRange, setDateRange] = useState({ start: null, end: null });
 
-  // ✅ Auth-aware subscription to expenses with popup→redirect fallback
+  // ✅ Auth-aware subscription to expenses with anonymous authentication
   useEffect(() => {
     const auth = getAuth();
     let unsubscribeExpenses = null;
@@ -66,15 +64,11 @@ function App() {
 
     const attemptSignIn = async () => {
       try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        await signInAnonymously(auth);
         // onAuthStateChanged will fire next
       } catch (e) {
-        console.warn('Popup sign-in failed; trying redirect...', e?.code || e);
-        // Common popup issues: auth/popup-blocked, auth/cancelled-popup-request
-        // Fallback to redirect flow (more reliable)
-        const provider = new GoogleAuthProvider();
-        await signInWithRedirect(auth, provider);
+        console.error('Anonymous sign-in failed:', e);
+        throw e;
       }
     };
 
@@ -82,20 +76,21 @@ function App() {
       if (!user) {
         setIsLoading(true);
         setError(null);
+        
         try {
           await attemptSignIn();
         } catch (e) {
           console.error('Sign-in error:', e);
-          const msg =
-            e?.code === 'auth/operation-not-allowed'
-              ? 'Google sign-in is not enabled in your Firebase project. Enable it in Console → Authentication → Sign-in method.'
-              : 'Sign-in failed. Please try again.';
+          let msg = 'Connection failed. Please refresh the page.';
+          if (e?.code === 'auth/operation-not-allowed') {
+            msg = 'Anonymous authentication is not enabled. Please contact the administrator.';
+          }
           setError(msg);
           setIsLoading(false);
         }
         return;
       }
-      // We have a user
+      // We have a user (anonymous)
       handleSignedIn(user);
     });
 
@@ -105,6 +100,7 @@ function App() {
       unsubscribeAuth();
     };
   }, []);
+
 
   // Load Instagram embed script (unchanged)
   useEffect(() => {
@@ -143,7 +139,7 @@ function App() {
         <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              {error}
+              <p>{error}</p>
             </div>
           )}
 
